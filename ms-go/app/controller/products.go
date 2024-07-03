@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"context"
+	"encoding/json"
+	"github.com/segmentio/kafka-go"
 	"ms-go/app/helpers"
 	"ms-go/app/models"
 	"ms-go/app/services/products"
@@ -66,6 +69,9 @@ func CreateProducts(c *gin.Context) {
 			return
 		}
 	}
+
+	sendToKafka(product)
+
 	c.JSON(http.StatusCreated, gin.H{"data": product})
 }
 
@@ -94,5 +100,41 @@ func UpdateProducts(c *gin.Context) {
 		}
 	}
 
+	sendToKafka(product)
+
 	c.JSON(http.StatusOK, gin.H{"data": product})
+}
+
+func sendToKafka(product *models.Product) {
+	prodcutBytes, err := json.Marshal(product)
+	if err != nil {
+		panic(err)
+	}
+
+	writer := newKafkaWriter()
+	defer writer.Close()
+
+	err = writer.WriteMessages(context.Background(), kafka.Message{
+		Value: prodcutBytes,
+	})
+
+	if err != nil {
+		panic(err)
+	}
+}
+
+func newKafkaWriter() *kafka.Writer {
+	createKafkaTopic()
+	return &kafka.Writer{
+		Addr:  kafka.TCP("localhost:9092"),
+		Topic: "go-to-rails",
+	}
+}
+
+func createKafkaTopic() {
+	topic := "go-to-rails"
+
+	conn, _ := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", topic, 0)
+
+	conn.Close()
 }
