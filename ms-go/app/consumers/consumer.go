@@ -11,7 +11,7 @@ import (
 
 func ConsumerRails() {
 	topic := "rails-to-go"
-	brokeAddress := "localhost:9092"
+	brokeAddress := "kafka:29092"
 	groupID := "rails-consumer-group"
 
 	reader := kafka.NewReader(kafka.ReaderConfig{

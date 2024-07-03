@@ -126,7 +126,7 @@ func sendToKafka(product *models.Product) {
 func newKafkaWriter() *kafka.Writer {
 	createKafkaTopic()
 	return &kafka.Writer{
-		Addr:  kafka.TCP("localhost:9092"),
+		Addr:  kafka.TCP("kafka:29092"),
 		Topic: "go-to-rails",
 	}
 }
@@ -134,7 +134,7 @@ func newKafkaWriter() *kafka.Writer {
 func createKafkaTopic() {
 	topic := "go-to-rails"
 
-	conn, _ := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", topic, 0)
+	conn, _ := kafka.DialLeader(context.Background(), "tcp", "kafka:29092", topic, 0)
 
 	conn.Close()
 }
