@@ -3,7 +3,7 @@
 class KarafkaApp < Karafka::App
   setup do |config|
     config.initial_offset = 'latest'
-    config.kafka = { 'bootstrap.servers': 'kafka:29092' }
+    config.kafka = { 'bootstrap.servers': 'localhost:9092' }
     config.client_id = 'ms-rails'
     config.consumer_persistence = !Rails.env.development?
 
@@ -21,6 +21,12 @@ class KarafkaApp < Karafka::App
       log_messages: false
     )
   )
+  
+  routes.draw do
+    topic :'go-to-rails' do
+      consumer ApplicationConsumer
+    end
+  end
 
   routes.draw do
     topic :example do
